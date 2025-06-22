@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <string>
+#include <strings.h>
 
 // Placeholders
 const int NUM_BOATS = 10;
@@ -19,6 +21,32 @@ QStringList scoringAbbreviations = {"DNC", "DNS", "OCS", "ZFP", "UFD", "BFD",
 // TODO: Add ability to specify multiple drops after race targets
 int number_of_drops(int num_races_to_drop, int num_races) {
   return (int)(num_races >= num_races_to_drop);
+}
+
+// TODO: Implement
+int scoringAbbreviationToScore(QTableWidget *tableWidget,
+                               QString abbreviation) {
+  return 1;
+}
+
+void updateTableTotals(QTableWidget *tableWidget) {
+  for (int row = 0; row < ROW_SIZE; ++row) {
+    // one less because last col is totals, TODO: make sure to change if layout
+    // changes
+    int rowSum = 0;
+    for (int column = NUM_BOAT_INFO_COLS; column < COL_SIZE - 1; ++column) {
+      auto item = tableWidget->item(row, column);
+      if (scoringAbbreviations.contains(item->text()))
+        rowSum += scoringAbbreviationToScore(tableWidget, item->text());
+      else if (item->text() == "")
+        rowSum += 0;
+      else
+        rowSum += item->text().toInt();
+    }
+    std::string s = std::to_string(rowSum);
+    char const *pchar = s.c_str();
+    tableWidget->item(row, COL_SIZE - 1)->setText(pchar);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -63,6 +91,8 @@ int main(int argc, char *argv[]) {
 
                        item->setText("");
                      }
+                     // update totals &  TODO: Update the results ordering
+                     updateTableTotals(&tableWidget);
                    });
 
   // Show the table widget
